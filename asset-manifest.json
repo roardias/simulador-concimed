@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/simulador-concimed/static/css/main.1c99559b.css",
-    "main.js": "/simulador-concimed/static/js/main.d0579555.js",
+    "main.css": "/simulador-concimed/static/css/main.86d5d381.css",
+    "main.js": "/simulador-concimed/static/js/main.de9e8446.js",
     "index.html": "/simulador-concimed/index.html",
-    "main.1c99559b.css.map": "/simulador-concimed/static/css/main.1c99559b.css.map",
-    "main.d0579555.js.map": "/simulador-concimed/static/js/main.d0579555.js.map"
+    "main.86d5d381.css.map": "/simulador-concimed/static/css/main.86d5d381.css.map",
+    "main.de9e8446.js.map": "/simulador-concimed/static/js/main.de9e8446.js.map"
   },
   "entrypoints": [
-    "static/css/main.1c99559b.css",
-    "static/js/main.d0579555.js"
+    "static/css/main.86d5d381.css",
+    "static/js/main.de9e8446.js"
   ]
 }
