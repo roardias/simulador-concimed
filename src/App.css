@@ -210,7 +210,7 @@ body::before {
   }
   
   .salary-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 12px;
   }
   
@@ -270,6 +270,55 @@ body::before {
   overflow: hidden;
   margin-bottom: 40px;
   overflow-x: auto;
+  position: relative;
+}
+
+/* Barra de rolagem simples estilo Excel - Desktop */
+.comparison-table-wrapper::-webkit-scrollbar {
+  height: 16px;
+}
+
+.comparison-table-wrapper::-webkit-scrollbar-track {
+  background: #f0f0f0;
+}
+
+.comparison-table-wrapper::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border: 1px solid #d4d4d4;
+}
+
+.comparison-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #a0a0a0;
+}
+
+.comparison-table-wrapper::-webkit-scrollbar-corner {
+  background: #f0f0f0;
+}
+
+/* Indicador visual para scroll no mobile */
+.scroll-hint {
+  position: absolute;
+  bottom: 5px;
+  right: 10px;
+  background: var(--concimed-orange);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  z-index: 5;
+  animation: scrollPulse 2s infinite;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(224, 101, 44, 0.4);
+}
+
+.scroll-hint.hidden {
+  display: none;
+}
+
+@keyframes scrollPulse {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
 }
 
 .comparison-table {
@@ -290,8 +339,12 @@ body::before {
   font-weight: 600;
   color: var(--concimed-brown);
   text-align: left;
-  width: 180px;
-  min-width: 150px;
+  width: 140px;
+  min-width: 120px;
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
 }
 
 .scenario-column {
@@ -299,6 +352,23 @@ body::before {
   border-top: 4px solid;
   position: relative;
   min-width: 120px;
+}
+
+/* Cenários não-Concimed em escala de cinza */
+.scenario-column:not(.concimed-column) {
+  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+  border-top-color: #666666 !important;
+}
+
+.scenario-column:not(.concimed-column) .scenario-name {
+  color: #666666 !important;
+}
+
+/* Destacar Concimed */
+.concimed-column {
+  background: linear-gradient(135deg, rgba(224, 101, 44, 0.1) 0%, rgba(224, 101, 44, 0.05) 100%);
+  border-top: 4px solid var(--concimed-orange) !important;
+  box-shadow: 0 4px 8px rgba(224, 101, 44, 0.2);
 }
 
 .scenario-name {
@@ -322,6 +392,10 @@ body::before {
   color: var(--concimed-brown);
   text-align: left;
   padding: 15px;
+  position: sticky;
+  left: 0;
+  z-index: 9;
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
 }
 
 .label-with-expand {
@@ -356,6 +430,17 @@ body::before {
   background: var(--concimed-white);
 }
 
+/* Valores não-Concimed em cinza */
+.value-cell:not(.concimed-value) {
+  color: #666666 !important;
+}
+
+/* Valores Concimed destacados */
+.concimed-value {
+  color: var(--concimed-orange) !important;
+  font-weight: 700 !important;
+}
+
 .cost-value {
   color: #dc3545;
   font-size: 1rem;
@@ -373,6 +458,7 @@ body::before {
 .highlight-label {
   background: linear-gradient(135deg, var(--shadow-light), var(--shadow-medium)) !important;
   color: var(--concimed-brown) !important;
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1) !important;
 }
 
 .costs-row {
@@ -384,9 +470,25 @@ body::before {
   border-bottom: 2px solid var(--concimed-orange);
 }
 
+.liquid-row .label-cell {
+  background: linear-gradient(135deg, var(--shadow-light), var(--shadow-medium)) !important;
+  position: sticky !important;
+  left: 0 !important;
+  z-index: 9 !important;
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1) !important;
+}
+
 .annual-liquid-row {
   background: linear-gradient(135deg, #e3f2fd, rgba(33, 150, 243, 0.05));
   border-bottom: 2px solid #2196f3;
+}
+
+.annual-liquid-row .label-cell {
+  background: linear-gradient(135deg, #e3f2fd, #bbdefb) !important;
+  position: sticky !important;
+  left: 0 !important;
+  z-index: 9 !important;
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1) !important;
 }
 
 .detail-row {
@@ -401,6 +503,10 @@ body::before {
   text-align: left;
   padding-left: 30px;
   font-size: 0.9rem;
+  position: sticky;
+  left: 0;
+  z-index: 8;
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
 }
 
 .detail-value {
@@ -420,15 +526,52 @@ body::before {
 }
 
 .concimed-fee-label {
-  background: linear-gradient(135deg, rgba(224, 101, 44, 0.15), rgba(224, 101, 44, 0.1)) !important;
+  background: var(--concimed-white) !important;
   color: var(--concimed-brown) !important;
   font-weight: 600 !important;
+  position: sticky !important;
+  left: 0 !important;
+  z-index: 15 !important;
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.15) !important;
+  border-left: 4px solid var(--concimed-orange) !important;
 }
 
 .concimed-fee-value {
   background: linear-gradient(135deg, rgba(224, 101, 44, 0.2), rgba(224, 101, 44, 0.1)) !important;
   color: var(--concimed-orange) !important;
   font-weight: 600 !important;
+}
+
+/* Classes específicas para coluna fixa */
+.liquid-label {
+  background: #ffffff !important;
+  border-left: 4px solid var(--concimed-orange) !important;
+  position: sticky !important;
+  left: 0 !important;
+  z-index: 20 !important;
+  box-shadow: 3px 0 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Sobrescrever especificamente a linha líquida */
+.liquid-row .liquid-label {
+  background: #ffffff !important;
+  background-image: none !important;
+  background-color: #ffffff !important;
+}
+
+.liquid-row .liquid-label.highlight-label {
+  background: #ffffff !important;
+  background-image: none !important;
+  background-color: #ffffff !important;
+}
+
+.annual-liquid-label {
+  background: var(--concimed-white) !important;
+  border-left: 4px solid #2196f3 !important;
+  position: sticky !important;
+  left: 0 !important;
+  z-index: 15 !important;
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.15) !important;
 }
 
 /* Análise de Economia */
@@ -513,28 +656,64 @@ body::before {
   .comparison-table-wrapper {
     border-radius: 10px;
   }
+
+  /* Forçar scrollbar no mobile */
+  .comparison-table-wrapper {
+    scrollbar-width: auto; /* Firefox */
+    -ms-overflow-style: auto; /* IE/Edge */
+  }
+  
+  .comparison-table-wrapper::-webkit-scrollbar {
+    height: 14px !important;
+    display: block !important;
+  }
+
+  .comparison-table-wrapper::-webkit-scrollbar-track {
+    background: #e0e0e0 !important;
+    border-radius: 0 !important;
+  }
+
+  .comparison-table-wrapper::-webkit-scrollbar-thumb {
+    background: var(--concimed-orange) !important;
+    border-radius: 7px !important;
+    border: 2px solid #e0e0e0 !important;
+  }
+
+  .comparison-table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: var(--concimed-brown) !important;
+  }
+  
+  /* Indicador visual mais proeminente no mobile */
+  .scroll-hint {
+    bottom: 8px;
+    right: 8px;
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    border-radius: 15px;
+  }
   
   .comparison-table {
-    font-size: 0.85rem;
+    font-size: 0.75rem;
   }
   
   .comparison-table th,
   .comparison-table td {
-    padding: 12px 8px;
+    padding: 8px 4px;
   }
   
   .scenario-header-cell {
-    width: 140px;
-    min-width: 120px;
-    font-size: 0.9rem;
+    width: 95px;
+    min-width: 85px;
+    font-size: 0.8rem;
+    padding: 8px 6px;
   }
   
   .scenario-column {
-    min-width: 100px;
+    min-width: 80px;
   }
   
   .scenario-name {
-    font-size: 0.95rem;
+    font-size: 0.85rem;
   }
   
   .tax-rate {
@@ -543,31 +722,31 @@ body::before {
   }
   
   .label-cell {
-    font-size: 0.9rem;
-    padding: 12px 10px;
+    font-size: 0.8rem;
+    padding: 8px 6px;
   }
   
   .expand-toggle {
-    width: 22px;
-    height: 22px;
-    font-size: 0.9rem;
-  }
-  
-  .value-cell {
+    width: 20px;
+    height: 20px;
     font-size: 0.85rem;
   }
   
+  .value-cell {
+    font-size: 0.75rem;
+  }
+  
   .liquid-value {
-    font-size: 0.95rem;
+    font-size: 0.85rem;
   }
   
   .detail-label {
-    font-size: 0.8rem;
-    padding-left: 20px;
+    font-size: 0.75rem;
+    padding-left: 15px;
   }
   
   .detail-value {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
   }
   
   .savings-analysis {

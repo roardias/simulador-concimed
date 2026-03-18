@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 
 function App() {
   const [selectedSalary, setSelectedSalary] = useState(null);
   const [expandedScenario, setExpandedScenario] = useState(null);
+  const [showScrollHint, setShowScrollHint] = useState(false);
+  const tableWrapperRef = useRef(null);
 
   const salaryOptions = [
     { value: 10000, label: 'R$ 10.000,00' },
@@ -33,7 +35,7 @@ function App() {
       {
         name: 'Pessoa Física',
         type: 'pf',
-        color: '#dc3545',
+        color: '#666666',
         taxRate: 0.275,
         costs: {
           imposto: grossSalary * 0.275,
@@ -48,7 +50,7 @@ function App() {
       {
         name: 'Simples Nacional',
         type: 'simples',
-        color: '#28a745',
+        color: '#666666',
         taxRate: 0.155,
         costs: {
           imposto: grossSalary * 0.155,
@@ -63,7 +65,7 @@ function App() {
       {
         name: 'Lucro Presumido',
         type: 'presumido',
-        color: '#17a2b8',
+        color: '#666666',
         taxRate: 0.1333,
         costs: {
           imposto: grossSalary * 0.1333,
@@ -79,15 +81,18 @@ function App() {
         name: 'Concimed',
         type: 'concimed',
         color: '#E0652C',
-        taxRate: 0.0815,
+        // Concimed: simplificado como "Impostos + Tx Adm" (15,29%)
+        taxRate: 0.1529,
         costs: {
-          imposto: grossSalary * 0.0815,
+          // Para deixar mais fácil, exibimos 0% em "Impostos" e movemos o total
+          // para a última linha ("Impostos + Tx Adm").
+          imposto: 0,
           contador: 0,
           inssProLabore: 0,
           crmPj: 0,
           certificadoDigital: 0,
           tarifaBancaria: 0,
-          txAdmConcimed: grossSalary * 0.0685
+          txAdmConcimed: grossSalary * 0.1529
         }
       }
     ];
@@ -127,12 +132,39 @@ function App() {
     setExpandedScenario(expandedScenario === scenarioType ? null : scenarioType);
   };
 
+  // Função para verificar se precisa mostrar dica de scroll
+  const checkScrollHint = () => {
+    const wrapper = tableWrapperRef.current;
+    if (wrapper) {
+      const needsScroll = wrapper.scrollWidth > wrapper.clientWidth;
+      const isAtStart = wrapper.scrollLeft < 10;
+      setShowScrollHint(needsScroll && isAtStart);
+    }
+  };
+
+  // Monitorar scroll e redimensionamento
+  useEffect(() => {
+    const wrapper = tableWrapperRef.current;
+    if (wrapper && selectedSalary) {
+      wrapper.addEventListener('scroll', checkScrollHint);
+      window.addEventListener('resize', checkScrollHint);
+      
+      // Verificar após renderização
+      setTimeout(checkScrollHint, 100);
+
+      return () => {
+        wrapper.removeEventListener('scroll', checkScrollHint);
+        window.removeEventListener('resize', checkScrollHint);
+      };
+    }
+  }, [selectedSalary, expandedScenario]);
+
   return (
     <div className="App">
       {/* Header com logo e título */}
       <header className="header">
         <img 
-          src="/logo_Concimed.svg" 
+          src={process.env.PUBLIC_URL + "/logo_Concimed.svg"} 
           alt="Logo Concimed" 
           className="logo"
         />
@@ -176,13 +208,18 @@ function App() {
 
             return (
               <>
-                <div className="comparison-table-wrapper">
+                <div className="comparison-table-wrapper" ref={tableWrapperRef}>
+                  {showScrollHint && (
+                    <div className="scroll-hint">
+                      ← Deslize →
+                    </div>
+                  )}
                   <table className="comparison-table">
                     <thead>
                       <tr>
                         <th className="scenario-header-cell">Cenário</th>
                         {scenarios.map((scenario) => (
-                          <th key={scenario.type} className="scenario-column" style={{ borderTopColor: scenario.color }}>
+                          <th key={scenario.type} className={`scenario-column ${scenario.type === 'concimed' ? 'concimed-column' : ''}`} style={{ borderTopColor: scenario.color }}>
                             <div className="scenario-name" style={{ color: scenario.color }}>
                               {scenario.name}
                             </div>
@@ -208,7 +245,7 @@ function App() {
                           </div>
                         </td>
                         {scenarios.map((scenario) => (
-                          <td key={scenario.type} className="value-cell cost-value">
+                          <td key={scenario.type} className={`value-cell cost-value ${scenario.type === 'concimed' ? 'concimed-value' : ''}`}>
                             {formatCurrency(scenario.totalCosts)}
                           </td>
                         ))}
@@ -219,7 +256,7 @@ function App() {
                           <tr className="detail-row">
                             <td className="detail-label">Impostos</td>
                             {scenarios.map((scenario) => (
-                              <td key={scenario.type} className="detail-value">
+                              <td key={scenario.type} className={`detail-value ${scenario.type === 'concimed' ? 'concimed-value' : ''}`}>
                                 {formatCurrency(scenario.costs.imposto)}
                               </td>
                             ))}
@@ -227,7 +264,7 @@ function App() {
                           <tr className="detail-row">
                             <td className="detail-label">Contador</td>
                             {scenarios.map((scenario) => (
-                              <td key={scenario.type} className="detail-value">
+                              <td key={scenario.type} className={`detail-value ${scenario.type === 'concimed' ? 'concimed-value' : ''}`}>
                                 {formatCurrency(scenario.costs.contador)}
                               </td>
                             ))}
@@ -265,7 +302,7 @@ function App() {
                             ))}
                           </tr>
                           <tr className="detail-row concimed-fee-row">
-                            <td className="detail-label concimed-fee-label">Tx Adm Concimed (6,85%)</td>
+                            <td className="detail-label concimed-fee-label">Impostos + Tx Adm (15,29%)</td>
                             {scenarios.map((scenario) => (
                               <td key={scenario.type} className={`detail-value ${scenario.type === 'concimed' ? 'concimed-fee-value' : ''}`}>
                                 {formatCurrency(scenario.costs.txAdmConcimed)}
@@ -276,9 +313,9 @@ function App() {
                       )}
 
                       <tr className="liquid-row">
-                        <td className="label-cell highlight-label">Líquido Mensal</td>
+                        <td className="label-cell highlight-label liquid-label">Líquido Mensal</td>
                         {scenarios.map((scenario) => (
-                          <td key={scenario.type} className="value-cell liquid-value" style={{ color: scenario.color }}>
+                          <td key={scenario.type} className={`value-cell liquid-value ${scenario.type === 'concimed' ? 'concimed-value' : ''}`} style={{ color: scenario.color }}>
                             <strong>{formatCurrency(scenario.netValue)}</strong>
                           </td>
                         ))}
@@ -287,16 +324,16 @@ function App() {
                       <tr className="annual-costs-row">
                         <td className="label-cell">Custos Anuais</td>
                         {scenarios.map((scenario) => (
-                          <td key={scenario.type} className="value-cell annual-value">
+                          <td key={scenario.type} className={`value-cell annual-value ${scenario.type === 'concimed' ? 'concimed-value' : ''}`}>
                             {formatCurrency(scenario.annualCosts)}
                           </td>
                         ))}
                       </tr>
 
                       <tr className="annual-liquid-row">
-                        <td className="label-cell highlight-label">Líquido Anual</td>
+                        <td className="label-cell highlight-label annual-liquid-label">Líquido Anual</td>
                         {scenarios.map((scenario) => (
-                          <td key={scenario.type} className="value-cell liquid-value" style={{ color: scenario.color }}>
+                          <td key={scenario.type} className={`value-cell liquid-value ${scenario.type === 'concimed' ? 'concimed-value' : ''}`} style={{ color: scenario.color }}>
                             <strong>{formatCurrency(scenario.annualNet)}</strong>
                           </td>
                         ))}
